@@ -14,25 +14,27 @@ class PostCard extends HTMLElement {
             <style>
                 :host {
                     display: block;
+                    /* Inherit variables from the light/dark theme */
+                    color: var(--font-color);
                 }
                 .card {
                     padding: 30px;
-                    border-bottom: 1px solid #eee;
+                    border-bottom: 1px solid var(--border-color);
                 }
                 h3 {
                     margin: 0 0 10px 0;
                     font-size: 1.8rem;
-                    color: #2c3e50;
+                    /* Use a specific color for titles or inherit */
+                    color: inherit; 
                 }
                 p {
                     margin: 0 0 15px 0;
                     font-size: 1.1rem;
                     white-space: pre-wrap;
-                    color: #555;
                 }
                 .date {
                     font-size: 0.9rem;
-                    color: #7f8c8d;
+                    color: #7f8c8d; /* This can also be a variable if needed */
                 }
             </style>
             <div class="card">
@@ -55,6 +57,7 @@ const postForm = document.getElementById('post-form');
 const postContainer = document.getElementById('post-container');
 const postTitleInput = document.getElementById('post-title');
 const postContentInput = document.getElementById('post-content');
+const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
 // --- Functions ---
 function openModal() {
@@ -76,17 +79,16 @@ function addPost(event) {
         newPost.setAttribute('title', title);
         newPost.textContent = content; // Pass content via textContent
 
-        // Add new post to the top of the container
         postContainer.prepend(newPost);
-
-        // Clear form and close modal
         postForm.reset();
         closeModal();
     }
 }
 
-// --- Initial Dummy Content ---
 function addInitialPosts() {
+    // Check if there are already posts to avoid duplication on hot reloads
+    if (postContainer.children.length > 0) return;
+
     const posts = [
         {
             title: "나의 첫 번째 글",
@@ -106,18 +108,35 @@ function addInitialPosts() {
     });
 }
 
+// --- Theme Toggling ---
+function setInitialTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    themeToggleBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    document.body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+}
 
 // --- Event Listeners ---
 writePostBtn.addEventListener('click', openModal);
 closeModalBtn.addEventListener('click', closeModal);
 postForm.addEventListener('submit', addPost);
+themeToggleBtn.addEventListener('click', toggleTheme);
 
-// Close modal if user clicks outside of the content area
 window.addEventListener('click', (event) => {
     if (event.target === modal) {
         closeModal();
     }
 });
 
-// Load initial content when the page loads
-document.addEventListener('DOMContentLoaded', addInitialPosts);
+document.addEventListener('DOMContentLoaded', () => {
+    setInitialTheme();
+    addInitialPosts();
+});
