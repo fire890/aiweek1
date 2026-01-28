@@ -1,34 +1,28 @@
+# retie: 은퇴자들을 위한 글쓰기 플랫폼
 
-# Blog Project Blueprint
+## 개요
 
-## Overview
+'retie'는 은퇴자들이 자신의 삶의 경험, 지혜, 이야기를 글로 공유하고, 일반 대중은 그 글을 읽으며 소통할 수 있는 웹 기반 커뮤니티 플랫폼입니다. 이 프로젝트는 현대적이고 접근성이 높으며, 사용하기 쉬운 인터페이스를 제공하는 것을 목표로 합니다.
 
-This document outlines the structure and design of a simple blog application. The goal is to create a clean, modern, and responsive blog interface using HTML, CSS, and JavaScript, following the principles of modern web development.
+## 디자인 및 기능
 
-## Current Implementation
+### 현재 구현된 기능 (v1)
+*   **메인 페이지:** 사이트의 이름 'retie'를 보여주는 헤더와 게시글이 표시될 중앙 콘텐츠 영역.
+*   **글쓰기 UI:** '새 글 쓰기' 버튼과 글을 작성할 수 있는 모달 창.
+*   **동적 게시물 생성:** 사용자가 입력한 제목과 내용이 즉시 새로운 게시물 카드로 생성되어 화면에 표시됩니다.
+*   **반응형 디자인:** 데스크톱과 모바일 기기 모두에서 최적화된 화면을 제공합니다.
+*   **시각적 요소:**
+    *   **색상 팔레트:** 주조색 `#2c3e50` (짙은 파란색), 보조색 `#3498db` (밝은 파란색), 배경색 `#ecf0f1` (부드러운 회색)을 사용하여 차분하고 전문적인 느낌을 줍니다.
+    *   **타이포그래피:** 가독성을 위해 'Noto Sans KR' 폰트를 사용합니다.
+    *   **인터랙션:** 버튼과 카드에 부드러운 전환 효과와 그림자 효과를 적용하여 입체감을 더했습니다.
 
-*   **Initial Setup:** The project started as a basic HTML page with "Hello, world!".
-*   **Styling:** A simple stylesheet is linked.
-*   **Scripting:** A simple JavaScript file is linked.
+## 현재 진행 계획
 
-## Plan for Blog Interface
-
-### 1. **Structure (HTML)**
-
-*   **Header:** A header containing the blog's title and a navigation menu.
-*   **Main Content:** A main section to display a list of blog post previews.
-*   **Blog Post Previews:** Each preview will include a title, a short excerpt, and a "Read More" link.
-*   **Footer:** A footer with copyright information and social media links.
-
-### 2. **Styling (CSS)**
-
-*   **Layout:** Use a modern layout (e.g., Flexbox or Grid) for the main page structure.
-*   **Typography:** Choose a clean and readable font for the blog content.
-*   **Color Palette:** Implement a visually appealing color scheme.
-*   **Responsive Design:** Ensure the layout adapts to different screen sizes.
-*   **Visual Enhancements:** Add subtle hover effects and other visual cues to improve user experience.
-
-### 3. **Interactivity (JavaScript)**
-
-*   **Dynamic Content:** (Future) Load blog post data from a JavaScript object or an API.
-*   **Navigation:** (Future) Implement smooth scrolling or other interactive navigation elements.
+1.  **기본 HTML 구조 설정:** `index.html` 파일에 헤더, 메인 콘텐츠 영역, 글쓰기 모달 등 기본 레이아웃을 구성합니다.
+2.  **CSS 스타일링:** `style.css` 파일을 생성하여 색상, 폰트, 레이아웃 등 전반적인 디자인을 적용합니다. 모바일 화면에서도 잘 보이도록 반응형 디자인을 추가합니다.
+3.  **JavaScript 기능 구현:** `main.js` 파일에 다음 기능들을 구현합니다.
+    *   '새 글 쓰기' 버튼 클릭 시 글쓰기 모달 창을 여는 기능.
+    *   폼 제출 시 입력된 내용으로 새로운 게시물 카드를 동적으로 생성하여 메인 페이지에 추가하는 기능.
+    *   웹 컴포넌트(`PostCard`)를 사용하여 게시물 코드를 캡슐화하고 재사용성을 높입니다.
+4.  **Firebase 연동 (MCP 설정):** `.idx/mcp.json` 파일을 수정하여 Firebase 호스팅 및 개발 서버를 위한 설정을 추가합니다.
+5.  **프로젝트 문서화:** `README.md` 파일을 업데이트하여 프로젝트에 대한 설명을 추가합니다.
