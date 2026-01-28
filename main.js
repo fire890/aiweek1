@@ -6,36 +6,18 @@ class PostCard extends HTMLElement {
     }
 
     connectedCallback() {
+        // Use getAttribute for date to ensure it's passed correctly
         const title = this.getAttribute('title');
         const content = this.innerHTML;
-        const date = new Date().toLocaleDateString('ko-KR');
+        const date = this.getAttribute('date');
 
         this.shadowRoot.innerHTML = `
             <style>
-                :host {
-                    display: block;
-                    /* Inherit variables from the light/dark theme */
-                    color: var(--font-color);
-                }
-                .card {
-                    padding: 30px;
-                    border-bottom: 1px solid var(--border-color);
-                }
-                h3 {
-                    margin: 0 0 10px 0;
-                    font-size: 1.8rem;
-                    /* Use a specific color for titles or inherit */
-                    color: inherit; 
-                }
-                p {
-                    margin: 0 0 15px 0;
-                    font-size: 1.1rem;
-                    white-space: pre-wrap;
-                }
-                .date {
-                    font-size: 0.9rem;
-                    color: #7f8c8d; /* This can also be a variable if needed */
-                }
+                :host { display: block; color: var(--font-color); }
+                .card { padding: 30px; border-bottom: 1px solid var(--border-color); }
+                h3 { margin: 0 0 10px 0; font-size: 1.8rem; color: inherit; }
+                p { margin: 0 0 15px 0; font-size: 1.1rem; white-space: pre-wrap; }
+                .date { font-size: 0.9rem; color: #7f8c8d; }
             </style>
             <div class="card">
                 <h3>${title}</h3>
@@ -43,11 +25,10 @@ class PostCard extends HTMLElement {
                 <div class="date">${date}</div>
             </div>
         `;
-        this.innerHTML = ''; // Clear original content
+        this.innerHTML = ''; // Clear original content to prevent duplication
     }
 }
 customElements.define('post-card', PostCard);
-
 
 // --- DOM Elements ---
 const writePostBtn = document.getElementById('write-post-btn');
@@ -59,7 +40,52 @@ const postTitleInput = document.getElementById('post-title');
 const postContentInput = document.getElementById('post-content');
 const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
-// --- Functions ---
+// --- Post Persistence ---
+const POSTS_STORAGE_KEY = 'retie-posts';
+
+function getPosts() {
+    const postsJSON = localStorage.getItem(POSTS_STORAGE_KEY);
+    return postsJSON ? JSON.parse(postsJSON) : null;
+}
+
+function savePosts(posts) {
+    localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
+}
+
+function renderPost(post) {
+    const newPostElement = document.createElement('post-card');
+    newPostElement.setAttribute('title', post.title);
+    newPostElement.setAttribute('date', post.date);
+    newPostElement.textContent = post.content;
+    postContainer.prepend(newPostElement); // Prepend to show newest first
+}
+
+function loadPosts() {
+    let posts = getPosts();
+    if (!posts || posts.length === 0) {
+        // If no posts exist, create initial dummy posts and save them
+        posts = [
+            {
+                title: "나의 첫 번째 글",
+                content: "은퇴 후 새로운 삶을 시작하며, 이곳 'retie'에 저의 작은 생각들을 기록해보려 합니다. 앞으로 많은 분들과 소통하고 싶습니다.",
+                date: new Date().toLocaleDateString('ko-KR')
+            },
+            {
+                title: "정원 가꾸기에서 얻는 교훈",
+                content: "작은 텃밭을 가꾸기 시작했습니다. 씨앗이 싹트고 자라나는 모습을 보며, 삶의 새로운 활력과 인내의 가치를 배웁니다. 자연은 언제나 최고의 스승입니다.",
+                date: new Date(Date.now() - 86400000).toLocaleDateString('ko-KR') // Yesterday
+            }
+        ];
+        savePosts(posts);
+    }
+    // Clear container and render all posts from storage
+    postContainer.innerHTML = '';
+    // Reverse the array to show oldest first, then prepend will put newest at top
+    posts.slice().reverse().forEach(renderPost);
+}
+
+
+// --- Modal and Form Functions ---
 function openModal() {
     modal.style.display = 'flex';
 }
@@ -68,44 +94,31 @@ function closeModal() {
     modal.style.display = 'none';
 }
 
-function addPost(event) {
+function handlePostSubmit(event) {
     event.preventDefault();
 
     const title = postTitleInput.value.trim();
     const content = postContentInput.value.trim();
 
     if (title && content) {
-        const newPost = document.createElement('post-card');
-        newPost.setAttribute('title', title);
-        newPost.textContent = content; // Pass content via textContent
+        const newPost = {
+            title,
+            content,
+            date: new Date().toLocaleDateString('ko-KR')
+        };
 
-        postContainer.prepend(newPost);
+        // Add to UI
+        renderPost(newPost);
+
+        // Add to localStorage
+        const posts = getPosts() || [];
+        posts.push(newPost);
+        savePosts(posts);
+
+        // Reset and close
         postForm.reset();
         closeModal();
     }
-}
-
-function addInitialPosts() {
-    // Check if there are already posts to avoid duplication on hot reloads
-    if (postContainer.children.length > 0) return;
-
-    const posts = [
-        {
-            title: "나의 첫 번째 글",
-            content: "은퇴 후 새로운 삶을 시작하며, 이곳 'retie'에 저의 작은 생각들을 기록해보려 합니다. 앞으로 많은 분들과 소통하고 싶습니다."
-        },
-        {
-            title: "정원 가꾸기에서 얻는 교훈",
-            content: "작은 텃밭을 가꾸기 시작했습니다. 씨앗이 싹트고 자라나는 모습을 보며, 삶의 새로운 활력과 인내의 가치를 배웁니다. 자연은 언제나 최고의 스승입니다."
-        }
-    ];
-
-    posts.forEach(post => {
-        const newPost = document.createElement('post-card');
-        newPost.setAttribute('title', post.title);
-        newPost.textContent = post.content;
-        postContainer.appendChild(newPost);
-    });
 }
 
 // --- Theme Toggling ---
@@ -127,7 +140,7 @@ function toggleTheme() {
 // --- Event Listeners ---
 writePostBtn.addEventListener('click', openModal);
 closeModalBtn.addEventListener('click', closeModal);
-postForm.addEventListener('submit', addPost);
+postForm.addEventListener('submit', handlePostSubmit);
 themeToggleBtn.addEventListener('click', toggleTheme);
 
 window.addEventListener('click', (event) => {
@@ -138,5 +151,5 @@ window.addEventListener('click', (event) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     setInitialTheme();
-    addInitialPosts();
+    loadPosts();
 });
